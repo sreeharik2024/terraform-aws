@@ -1,0 +1,105 @@
+Create and EC2 instance using Terraform
+Create and EC2 instance using Terraform
+
+I have installed terraform,also want a AWS IAM user,Need to craete Security credentials,Like access,secret key.After that need to install AWS cli,and connect with aws configure.
+
+I have created main.tf with below code.
+
+
+The First step,In this part we can add provider name with aws,source is given below,its mandatory for creating terraform main.tf.
+terraform {
+ required_providers {
+   aws = {
+     source = "hashicorp/aws"
+   }
+ }
+}
+1. terraform block
+The terraform block is a top-level configuration block in a Terraform configuration file. It is used to specify settings that apply to the entire Terraform configuration. The most common use of this block is to define the required providers, which Terraform needs to interact with different cloud platforms or services.
+2. required_providers block
+Inside the terraform block, the required_providers block is used to specify which providers your Terraform configuration will depend on. Providers are responsible for managing resources for specific services (e.g., AWS, Azure, Google Cloud, etc.).
+The required_providers block tells Terraform which external provider plugin(s) are necessary to perform actions (like creating resources) within a specific cloud platform or service.
+3. aws = { ... }
+This defines the aws provider. Terraform will use this provider to manage resources on Amazon Web Services (AWS).
+aws: The name of the provider (in this case, AWS).
+source = "hashicorp/aws": This specifies the source of the provider. In this case, it’s hashicorp/aws, which means you are using the official AWS provider maintained by HashiCorp, the company behind Terraform.
+
+provider "aws" {
+ region     = "us-east-1"  # Replace with your desired region
+ access_key = ""  # Optional, only if not using environment variables or AWS CLI
+ secret_key = ""  # Optional, only if not using environment variables or AWS CLI
+}
+
+
+1. provider "aws" block
+This block specifies the configuration for the AWS provider. Providers in Terraform are responsible for managing resources on the platform (in this case, AWS). A provider allows Terraform to interact with the resources in the specific cloud service (AWS, Azure, Google Cloud, etc.).
+2. region
+region = "us-east-1" specifies the AWS region where your resources will be created or managed.
+The region in this case is us-east-1, which is the North Virginia region in AWS. You can change this to any other AWS region like us-west-2, eu-west-1, etc., depending on where you want your resources to be located.
+3. access_key and secret_key
+access_key and secret_key are used for AWS authentication.
+access_key: This is the AWS Access Key ID which is part of the credentials that Terraform will use to authenticate to AWS.
+secret_key: This is the AWS Secret Access Key associated with the access_key to perform AWS operations.
+Note: These keys should be handled securely and not hardcoded in your Terraform configuration. It’s generally a better practice to use environment variables, the AWS CLI, or IAM roles for security reasons.
+You can avoid exposing your AWS keys in the code by using other methods such as:
+Environment Variables: You can set the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY as environment variables.
+AWS CLI Config: If you have the AWS CLI configured, Terraform will automatically use the credentials stored in ~/.aws/credentials
+
+resource "aws_instance" "aws"{
+ ami = "ami-04b4f1a9cf54c11d0"
+ instance_type = "t3.micro"
+ key_name = "nginx"
+ security_groups = ["default"]
+  tags = {
+   Name = "MyFirstEC2Instance"
+ }
+ }
+
+1. resource "aws_instance" "aws" block
+resource: This keyword in Terraform is used to define a resource you want to create or manage. A resource represents a component or infrastructure that Terraform will provision (in this case, an EC2 instance).
+"aws_instance": This is the resource type, specifically an EC2 instance from AWS. It tells Terraform that you are provisioning an EC2 instance.
+"aws": This is the resource name. It is used as a reference to refer to this specific resource in other parts of your Terraform configuration. It could be anything, but it’s commonly given a meaningful name.
+2. ami = "ami-04b4f1a9cf54c11d0"
+ami: This specifies the Amazon Machine Image (AMI) to use for creating the EC2 instance. AMIs are pre-configured images that contain the operating system and software stack you want to run on the instance.
+ami-04b4f1a9cf54c11d0: This is a specific AMI ID. It represents a particular operating system or software configuration, such as a particular version of Linux, Windows, or a preconfigured image with software like Nginx. You can find available AMI IDs in the AWS Console or via the AWS CLI. Make sure this AMI is valid and available in the region you plan to launch the instance in.
+3. instance_type = "t3.micro"
+instance_type: This specifies the type of EC2 instance to launch. EC2 instance types vary in terms of CPU, memory, and storage capacity.
+t3.micro: This is the type of instance. t3.micro is part of the T3 instance family, which is a low-cost option ideal for low-traffic workloads. It offers 1 vCPU and 1 GB of RAM. It’s typically used for smaller, less resource-intensive applications.
+4. key_name = "nginx"
+key_name: This specifies the name of an SSH key pair that Terraform will use to connect to the instance. AWS EC2 instances require a key pair for SSH access.
+nginx: This is the name of the SSH key pair that you’ve either created beforehand in AWS or plan to create. When you launch the instance, you can SSH into it using the private key of this pair. If you don’t already have a key pair called nginx, you will need to create one in AWS.
+Need to create key_pair from instance
+5. security_groups = ["default"]
+security_groups: This defines the security groups (firewall rules) that will be applied to the EC2 instance. Security groups control inbound and outbound traffic to the instance.
+["default"]: This references the default security group in your AWS account. The default security group typically allows inbound traffic on port 22 (SSH) from your IP, allowing you to access the instance. You can create custom security groups for more fine-grained access control.
+6. tags = { Name = "MyFirstEC2Instance" }
+tags: Tags are key-value pairs that you can assign to your AWS resources. They help you identify and organize resources in AWS.
+Name = "MyFirstEC2Instance": This assigns a Name tag to the instance with the value "MyFirstEC2Instance". This is useful for labeling your instance and easily identifying it in the AWS Console.
+
+
+
+
+
+    terraform init
+Use Case: Initializes your Terraform working directory.
+When to Use: You use terraform init to initialize the working directory containing your Terraform configuration files. This command prepares Terraform by downloading necessary provider plugins (like AWS, Azure, etc.), initializing the backend (if you're using a remote backend), and setting up the state files.
+
+
+     terraform plan
+Use Case: Previews the changes that Terraform will make to your infrastructure.
+When to Use: After you've written or modified your Terraform configuration, you run terraform plan to see what actions Terraform will take (e.g., create, modify, or destroy resources) without actually making those changes.
+terraform apply
+Use Case: Applies the changes to the infrastructure as defined in the Terraform configuration files.
+When to Use: After reviewing the execution plan (using terraform plan), you use terraform apply to make the actual changes to your infrastructure. This command provisions, updates, or deletes resources based on the configuration and the changes indicated in the plan.
+terraform destroy
+Use Case: Destroys all the resources managed by Terraform.
+When to Use: If you want to tear down your infrastructure and delete all resources created by Terraform, you use terraform destroy. This command will remove all resources defined in the configuration files, effectively reverting your infrastructure back to its initial state.
+
+
+
+
+
+
+
+
+
